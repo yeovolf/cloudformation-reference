@@ -1,0 +1,44 @@
+Parameters:
+  LatestAmiId: 
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  InstanceTypeParameter: 
+    Type: String
+    Default: t2.micro 
+    AllowedValues:
+      - t2.micro
+      - m1.small
+      - m1.large
+    Description: Enter t2.micro, m1.small, or m1.large. Default is t2.micro.
+
+  myKeyPair: 
+    Description: Please select a key pair
+    Type: "AWS::EC2::KeyPair::KeyName"
+  
+
+
+Resources:
+  MyEC2Instance: 
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: !Ref LatestAmiId
+      InstanceType:  !Ref InstanceTypeParameter 
+      KeyName: !Ref myKeyPair 
+      SubnetId: !ImportValue SampleNetworkCrossStack-SubnetID 
+      SecurityGroupIds: 
+        - !ImportValue SampleNetworkCrossStack-SecurityGroupID
+
+  MyEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref MyEC2Instance
+
+Outputs:
+  EC2InstanceOutput:
+    Description: This output will display the private ip address of the instance
+    Value: !GetAtt MyEC2Instance.PrivateIp
+
+  EC2PublicIP:
+    Description: This output will display the DNS address of the instance
+    Value: !GetAtt MyEC2Instance.PublicIp
+
