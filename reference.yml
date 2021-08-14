@@ -27,6 +27,14 @@ Resources:
       SubnetId: !ImportValue SampleNetworkCrossStack-SubnetID 
       SecurityGroupIds: 
         - !ImportValue SampleNetworkCrossStack-SecurityGroupID
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd
+          systemctl start httpd
+          systemctl enable httpd
+          echo "Bienvenu dans le website" > /var/www/html/index.html
 
   MyEIP:
     Type: AWS::EC2::EIP
